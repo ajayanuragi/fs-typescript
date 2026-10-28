@@ -16,8 +16,8 @@ const calculateExercises = (dailyExcerice: number[], target: number): Result => 
       0,
     ) / periodLength;
   const success = target === average;
-  let rating;
-  let ratingDescription;
+  let rating:number;
+  let ratingDescription:string;
   if (average >= target) {
     rating = 3;
     ratingDescription = "perfect";
