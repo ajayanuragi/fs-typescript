@@ -7,7 +7,7 @@ interface Result {
   target: number;
   average: number;
 }
-const calculateExercises = (dailyExcerice: number[], target: number) => {
+const calculateExercises = (dailyExcerice: number[], target: number): Result => {
   const periodLength = dailyExcerice.length;
   const trainingDays = dailyExcerice.filter((x) => x > 0).length;
   const average =
