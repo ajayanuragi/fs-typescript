@@ -18,7 +18,7 @@ const calculateExercises = (
       (accumulator, currentValue) => accumulator + currentValue,
       0,
     ) / periodLength;
-  const success = average >= target
+  const success = average >= target;
   let rating: number;
   let ratingDescription: string;
   if (average >= target) {
@@ -69,13 +69,13 @@ const parseArguments = (args: string[]): [number, number[]] => {
 };
 
 try {
-  const [target, dailyHours]= parseArguments(process.argv.slice(2));
+  const [target, dailyHours] = parseArguments(process.argv.slice(2));
 
-  console.log(calculateExercises(dailyHours, target))
+  console.log(calculateExercises(dailyHours, target));
 } catch (error: unknown) {
   if (error instanceof Error) {
-    console.error(error.message)
+    console.error(error.message);
   }
 }
 
-export {}
+export {};
