@@ -14,5 +14,28 @@ const calculateBmi = (height: number, weight: number): string => {
   return answer
 }
 
+const parseArguments = (args: string[]): [number, number] => {
+  if (args.length != 2) {
+    throw new Error("Please provide exactly two arguments: height and weight")
+  }
 
-console.log(calculateBmi(180, 74))
+  const height = Number(args[0])
+  const weight = Number(args[1])
+
+  if (!Number.isFinite(height) || !Number.isFinite(weight) || height <= 0 || weight <= 0) {
+    throw new Error("Height and weight must be positive numbers")
+  }
+
+  return [height, weight]
+}
+
+try {
+  const [height, weight] = parseArguments(process.argv.slice(2))
+  console.log(calculateBmi(height, weight))
+} catch (error: unknown) {
+  if (error instanceof Error) {
+    console.error(error.message)
+  }
+}
+
+export {}
