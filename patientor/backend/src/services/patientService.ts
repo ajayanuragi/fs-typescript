@@ -24,8 +24,8 @@ const getPatientsWithoutSSN = (): NonSensitivePatient[] => {
 const addPatient = (patient: NewPatient): Patient => {
   const id = uuid();
   const newPatient = {
-    id, 
-    ...patient
+    id,
+    ...patient,
   };
   patients.push(newPatient);
   return newPatient;
