@@ -14,6 +14,7 @@ import {
   Chip,
   Box,
 } from "@mui/material";
+import { EntryDetails } from "../EntryDetails";
 
 interface Props {
   diagnoses: Diagnosis[];
@@ -52,7 +53,6 @@ export const PatientPage = ({ diagnoses }: Props) => {
         return <TransgenderIcon />;
     }
   };
-  console.log(patient);
 
   return (
     <div className="app">
@@ -83,29 +83,20 @@ export const PatientPage = ({ diagnoses }: Props) => {
               <strong>Date of birth:</strong> {patient.dateOfBirth}
             </Typography>
             <br />
-
-            <Typography variant="h5" component="h4">
-              entries
-            </Typography>
-            {patient?.entries &&
-              patient?.entries?.map((entry) => (
-                <div key={entry?.id}>
-                  <p>
-                    {entry?.date} {entry?.description}
-                  </p>
-                  <ul>
-                    {entry.diagnosisCodes?.map((code) => {
-                      const diagnosis = diagnoses.find((d) => d.code === code);
-
-                      return (
-                        <li key={code}>
-                          {code} {diagnosis?.name ?? "Unknown diagnosis"}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              ))}
+            {patient.entries && patient.entries?.length > 0 && (
+              <>
+                <Typography variant="h5" component="h4">
+                  entries
+                </Typography>
+                {patient?.entries.map((entry) => (
+                  <EntryDetails
+                    entry={entry}
+                    diagnoses={diagnoses}
+                    key={entry.id}
+                  />
+                ))}
+              </>
+            )}
           </Box>
         </Stack>
       </Paper>

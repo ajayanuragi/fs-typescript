@@ -1,18 +1,48 @@
 import { z } from "zod";
 import type { NewPatient } from "./types/type.ts";
-import { Gender } from "./types/type.ts";
+import { Gender, HealthCheckRating } from "./types/type.ts";
 
-const parseNewPatient = (object: unknown): NewPatient => {
-  return NewPatientSchema.parse(object);
-};
-
-export const EntrySchema = z.object({
+const BaseEntrySchema = z.object({
   id: z.string(),
-  desciption: z.string(),
-  date: z.iso.date(),
+  description: z.string(),
+  date: z.string(),
   specialist: z.string(),
-  type: z.enum(["Hospital", "HealthCheck", "OccupationalHealthcare"]),
 });
+
+const HospitalEntrySchema = BaseEntrySchema.extend({
+  type: z.literal("Hospital"),
+  discharge: z.object({
+    date: z.iso.date(),
+    criteria: z.string(),
+  }),
+});
+
+const HealthCheckEntrySchema = BaseEntrySchema.extend({
+  type: z.literal("HealthCheck"),
+  healthCheckRating: z.union([
+    z.literal(HealthCheckRating.Healthy),
+    z.literal(HealthCheckRating.LowRisk),
+    z.literal(HealthCheckRating.HighRisk),
+    z.literal(HealthCheckRating.CriticalRisk),
+  ]),
+});
+
+const OccupationalHealthcareEntrySchema = BaseEntrySchema.extend({
+  type: z.literal("OccupationalHealthcare"),
+  employerName: z.string(),
+  sickLeave: z
+    .object({
+      startDate: z.iso.date(),
+      endDate: z.iso.date(),
+    })
+    .optional(),
+});
+
+export const EntrySchema = z.discriminatedUnion("type", [
+  HospitalEntrySchema,
+  HealthCheckEntrySchema,
+  OccupationalHealthcareEntrySchema,
+]);
 
 export const NewPatientSchema = z.object({
   name: z.string(),
@@ -22,6 +52,10 @@ export const NewPatientSchema = z.object({
   occupation: z.string(),
   entries: z.array(EntrySchema).optional(),
 });
+
+const parseNewPatient = (object: unknown): NewPatient => {
+  return NewPatientSchema.parse(object);
+};
 
 export const PatientIdSchema = z.object({
   id: z.string(),
