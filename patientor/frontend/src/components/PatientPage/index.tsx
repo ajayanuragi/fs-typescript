@@ -48,6 +48,7 @@ export const PatientPage = () => {
         return <TransgenderIcon />;
     }
   };
+  console.log(patient);
 
   return (
     <div className="app">
@@ -77,6 +78,24 @@ export const PatientPage = () => {
             <Typography variant="body1">
               <strong>Date of birth:</strong> {patient.dateOfBirth}
             </Typography>
+            <br />
+
+            <Typography variant="h5" component="h4">
+              entries
+            </Typography>
+            {patient?.entries &&
+              patient?.entries?.map((entry) => (
+                <div key={entry?.id}>
+                  <p>
+                    {entry?.date} {entry?.description}
+                  </p>
+                  <ul>
+                    {entry?.diagnosisCodes?.map((code) => (
+                      <li>{code}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
           </Box>
         </Stack>
       </Paper>
