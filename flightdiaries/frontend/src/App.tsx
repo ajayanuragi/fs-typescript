@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import type { DiaryEntry } from "./types";
 import { Weather, Visibility } from "./types";
 import diaryService from "./diaryService";
@@ -10,23 +11,50 @@ function App() {
   const [weather, setWeather] = useState<Weather>(Weather.Sunny);
   const [visibility, setVisibility] = useState<Visibility>(Visibility.Good);
   const [comment, setComment] = useState<string>("");
+  const [error, setError] = useState<boolean | string>(false);
+
+  const handleError = (error: unknown) => {
+    if (axios.isAxiosError(error)) {
+      setError(error.response?.data?.error || error.message);
+    } else {
+      setError("Something went wrong");
+    }
+  };
 
   useEffect(() => {
-    diaryService.getAllDiaries().then((diaries) => setDiaryEntries(diaries));
+    const fetchDiaries = async () => {
+      try {
+        const diaries = await diaryService.getAllDiaries();
+        setDiaryEntries(diaries);
+      } catch (error) {
+        handleError(error);
+      }
+    };
+
+    fetchDiaries();
   }, []);
 
-  const newEntry = (event: React.SyntheticEvent) => {
+  const newEntry = async (event: React.SyntheticEvent) => {
     event.preventDefault();
-    diaryService
-      .create({ comment, date, visibility, weather })
-      .then((addedNote) => {
-        setDiaryEntries((prev) => [...prev, addedNote]);
+    try {
+      const addedNote = await diaryService.create({
+        comment,
+        date,
+        visibility,
+        weather,
       });
+      setDiaryEntries((prev) => [...prev, addedNote]);
+      setComment("");
+      setError(false);
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   return (
     <div>
       <h1>diaries</h1>
+      {error && <p style={{ color: "red" }}>{error}</p>}
       {diaryEntries.map((diary) => (
         <div key={diary.id}>
           <p>{diary.date}</p>
@@ -51,7 +79,7 @@ function App() {
           value={weather}
           onChange={(event) => setWeather(event.target.value as Weather)}
         >
-          <option >Select Weather</option>
+          <option>Select Weather</option>
           {Object.entries(Weather).map(([key, value]) => (
             <option key={key} value={value}>
               {key}
