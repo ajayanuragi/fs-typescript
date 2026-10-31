@@ -5,7 +5,7 @@ import express, {
 } from "express";
 
 import patientService from "../services/patientService.ts";
-import { NewPatientSchema } from "../utils.ts";
+import { NewPatientSchema, PatientIdSchema } from "../utils.ts";
 import type { NewPatient, NonSensitivePatient } from "../types/type.ts";
 import { z } from "zod";
 
@@ -14,6 +14,19 @@ const router = express.Router();
 router.get("/", (_req, res: Response<NonSensitivePatient[]>) => {
   const data = patientService.getPatientsWithoutSSN();
   res.send(data);
+});
+router.get("/:id", (req, res) => {
+  try {
+    const { id } = PatientIdSchema.parse(req.params);
+    const patient = patientService.getPatient(id);
+    res.json(patient);
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError) {
+      res.status(400).send({ error: error.issues });
+    } else {
+      res.status(500).send({ error: "Internal server error" });
+    }
+  }
 });
 
 const newPatientParser = (req: Request, _res: Response, next: NextFunction) => {

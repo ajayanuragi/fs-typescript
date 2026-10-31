@@ -20,6 +20,13 @@ const getPatientsWithoutSSN = (): NonSensitivePatient[] => {
     occupation,
   }));
 };
+const getPatient = (id: string): Patient => {
+  const patient = patients.find((patient) => patient.id === id);
+  if (!patient) {
+    throw new Error("Patient not found with id: " + id);
+  }
+  return patient;
+};
 
 const addPatient = (patient: NewPatient): Patient => {
   const id = uuid();
@@ -33,6 +40,7 @@ const addPatient = (patient: NewPatient): Patient => {
 
 export default {
   getPatients,
+  getPatient,
   getPatientsWithoutSSN,
   addPatient,
 };

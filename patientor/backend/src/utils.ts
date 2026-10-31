@@ -12,6 +12,11 @@ export const NewPatientSchema = z.object({
   gender: z.enum(Gender),
   ssn: z.string(),
   occupation: z.string(),
+  entries: z.array(z.object({})).optional(),
+});
+
+export const PatientIdSchema = z.object({
+  id: z.string(),
 });
 
 export default parseNewPatient;
