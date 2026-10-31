@@ -8,7 +8,7 @@ import "./App.css";
 function App() {
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [weather, setWeather] = useState<Weather>(Weather.Sunny);
+  const [weather, setWeather] = useState<Weather>(Weather.Cloudy);
   const [visibility, setVisibility] = useState<Visibility>(Visibility.Good);
   const [comment, setComment] = useState<string>("");
   const [error, setError] = useState<boolean | string>(false);
@@ -53,8 +53,70 @@ function App() {
 
   return (
     <div>
-      <h1>diaries</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
+      <h3>New Entry</h3>
+      <form onSubmit={newEntry}>
+        <div>
+          <label>Comment</label>
+          <input
+            placeholder="add comment"
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+          />
+        </div>
+        <div>
+          <label>Date</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(event) => setDate(event.target.value)}
+          />
+        </div>
+        {/*Weather*/}
+        <div>
+          <fieldset>
+            <legend>Select Weather:</legend>
+
+            {Object.entries(Weather).map(([key, value]) => (
+              <div key={key}>
+                <input
+                  type="radio"
+                  id={value}
+                  name="weather"
+                  value={value}
+                  checked={weather === value}
+                  onChange={() => setWeather(value as Weather)}
+                />
+
+                <label htmlFor={value}>{key}</label>
+              </div>
+            ))}
+          </fieldset>
+        </div>
+        {/*Visibility*/}
+
+        <div>
+          <fieldset>
+            <legend>Select Visibility</legend>
+            {Object.entries(Visibility).map(([key, value]) => (
+              <div key={key}>
+                <input
+                  type="radio"
+                  id={value}
+                  name="visibility"
+                  value={value}
+                  checked={visibility === value}
+                  onChange={() => setVisibility(value as Visibility)}
+                />
+                <label htmlFor={value}>{key}</label>
+              </div>
+            ))}
+          </fieldset>
+        </div>
+        <button type="submit">add new diary entry</button>
+      </form>
+
+      <h3>All Entries</h3>
       {diaryEntries.map((diary) => (
         <div key={diary.id}>
           <p>{diary.date}</p>
@@ -63,43 +125,6 @@ function App() {
           <br />
         </div>
       ))}
-      <form onSubmit={newEntry}>
-        <input
-          placeholder="add comment"
-          value={comment}
-          onChange={(event) => setComment(event.target.value)}
-        />
-        <input
-          type="date"
-          value={date}
-          onChange={(event) => setDate(event.target.value)}
-        />
-
-        <select
-          value={weather}
-          onChange={(event) => setWeather(event.target.value as Weather)}
-        >
-          <option>Select Weather</option>
-          {Object.entries(Weather).map(([key, value]) => (
-            <option key={key} value={value}>
-              {key}
-            </option>
-          ))}
-        </select>
-        <select
-          value={visibility}
-          onChange={(event) => setVisibility(event.target.value as Visibility)}
-        >
-          <option>Select Visibility</option>
-          {Object.entries(Visibility).map(([key, value]) => (
-            <option key={key} value={value}>
-              {key}
-            </option>
-          ))}
-        </select>
-
-        <button type="submit">add new diary entry</button>
-      </form>
     </div>
   );
 }
