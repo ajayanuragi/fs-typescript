@@ -146,11 +146,17 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
     return true;
   };
 
-  const addEntry = async (event: React.SyntheticEvent) => {
+  const addEntry = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     setError("");
 
-    if (!id || !validateForm()) {
+    if (!id) {
+      setError("Patient ID is missing");
+      return;
+    }
+
+    if (!validateForm()) {
       return;
     }
 
@@ -194,10 +200,14 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
     }
 
     try {
+      
       const addedEntry = await entryService.create({ id, object });
+
       onEntryAdded(addedEntry);
       resetForm();
     } catch (error: unknown) {
+      console.error("Entry submission error:", error);
+
       if (axios.isAxiosError(error)) {
         setError(error.response?.data?.error ?? "Failed to add entry");
       } else {
