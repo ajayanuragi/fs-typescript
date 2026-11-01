@@ -122,7 +122,7 @@ export const PatientPage = ({ diagnoses }: Props) => {
           <Typography variant="h5" component="h2">
             Add New Entry
           </Typography>
-          <AddEntryForm onEntryAdded={onEntryAdded} />
+          <AddEntryForm onEntryAdded={onEntryAdded} diagnoses={diagnoses} />
         </div>
       </Paper>
     </div>

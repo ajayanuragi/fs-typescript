@@ -2,26 +2,35 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import entryService from "../../services/entries";
-import type { Entry, EntryFormValues } from "../../types";
+import type { Diagnosis, Entry, EntryFormValues } from "../../types";
 import { isValidDate, isNotEmpty } from "../../utils/validation";
+import {
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  ListItemText,
+  OutlinedInput,
+} from "@mui/material";
+
 
 interface Props {
   onEntryAdded: (entry: Entry) => void;
+  diagnoses: Diagnosis[];
 }
 
-type EntryType =
-  | "HealthCheck"
-  | "Hospital"
-  | "OccupationalHealthcare";
+type EntryType = "HealthCheck" | "Hospital" | "OccupationalHealthcare";
 
-const AddEntryForm = ({ onEntryAdded }: Props) => {
+const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
   const [type, setType] = useState<EntryType>("HealthCheck");
 
   // Common fields
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
   const [specialist, setSpecialist] = useState("");
-  const [diagnosisCode, setDiagnosisCode] = useState("");
+  const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
 
   // HealthCheck fields
   const [healthCheckRating, setHealthCheckRating] = useState("");
@@ -43,7 +52,7 @@ const AddEntryForm = ({ onEntryAdded }: Props) => {
     setDate("");
     setDescription("");
     setSpecialist("");
-    setDiagnosisCode("");
+    setDiagnosisCodes([]);
     setHealthCheckRating("");
     setDischargeDate("");
     setDischargeCriteria("");
@@ -61,6 +70,16 @@ const AddEntryForm = ({ onEntryAdded }: Props) => {
 
     if (!isNotEmpty(description) || !isNotEmpty(specialist)) {
       setError("Description and specialist are required");
+      return false;
+    }
+
+    // Validate diagnosis codes for every entry type
+    const invalidCodes = diagnosisCodes.filter(
+      (code) => !diagnoses.some((diagnosis) => diagnosis.code === code),
+    );
+
+    if (invalidCodes.length > 0) {
+      setError("Please select valid diagnosis codes");
       return false;
     }
 
@@ -116,6 +135,11 @@ const AddEntryForm = ({ onEntryAdded }: Props) => {
           setError("Sick leave start date cannot be after end date");
           return false;
         }
+
+        if (startDate < date) {
+          setError("Sick leave cannot start before the entry date");
+          return false;
+        }
       }
     }
 
@@ -134,10 +158,7 @@ const AddEntryForm = ({ onEntryAdded }: Props) => {
       date,
       description: description.trim(),
       specialist: specialist.trim(),
-      diagnosisCodes: diagnosisCode
-        .split(",")
-        .map((code) => code.trim())
-        .filter(Boolean),
+      diagnosisCodes,
     };
 
     let object: EntryFormValues;
@@ -167,10 +188,7 @@ const AddEntryForm = ({ onEntryAdded }: Props) => {
           ...commonFields,
           type: "OccupationalHealthcare",
           employerName: employerName.trim(),
-          sickLeave:
-            startDate && endDate
-              ? { startDate, endDate }
-              : undefined,
+          sickLeave: startDate && endDate ? { startDate, endDate } : undefined,
         };
         break;
     }
@@ -214,15 +232,17 @@ const AddEntryForm = ({ onEntryAdded }: Props) => {
         </fieldset>
 
         {/* Common fields */}
-        <fieldset>
-          <legend>Date</legend>
-          <input
-            type="date"
-            value={date}
-            onChange={(event) => setDate(event.target.value)}
-            required
-          />
-        </fieldset>
+        <TextField
+          label="Entry date"
+          type="date"
+          value={date}
+          onChange={(event) => setDate(event.target.value)}
+          fullWidth
+          required
+          slotProps={{
+            inputLabel: { shrink: true },
+          }}
+        />
 
         <fieldset>
           <legend>Description</legend>
@@ -242,57 +262,85 @@ const AddEntryForm = ({ onEntryAdded }: Props) => {
           />
         </fieldset>
 
-        <fieldset>
-          <legend>Diagnosis Codes (comma-separated)</legend>
-          <input
-            value={diagnosisCode}
-            onChange={(event) => setDiagnosisCode(event.target.value)}
-          />
-        </fieldset>
+        <FormControl fullWidth>
+          <InputLabel id="diagnosis-label">Diagnosis Codes</InputLabel>
+
+          <Select<string[]>
+            labelId="diagnosis-label"
+            multiple
+            value={diagnosisCodes}
+            onChange={(event) => {
+              const value = event.target.value;
+
+              setDiagnosisCodes(
+                typeof value === "string" ? value.split(",") : value,
+              );
+            }}
+            input={<OutlinedInput label="Diagnosis Codes" />}
+            renderValue={(selected) =>
+              selected
+                .map((code) => {
+                  const diagnosis = diagnoses.find((d) => d.code === code);
+
+                  return diagnosis
+                    ? `${diagnosis.code} - ${diagnosis.name}`
+                    : code;
+                })
+                .join(", ")
+            }
+          >
+            {diagnoses.map((diagnosis) => (
+              <MenuItem key={diagnosis.code} value={diagnosis.code}>
+                <Checkbox checked={diagnosisCodes.includes(diagnosis.code)} />
+
+                <ListItemText
+                  primary={`${diagnosis.code} - ${diagnosis.name}`}
+                />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         {/* HealthCheck-specific fields */}
         {type === "HealthCheck" && (
-          <fieldset>
-            <legend>Health Check Rating (0-3)</legend>
-            <input
-              type="number"
-              min="0"
-              max="3"
-              step="1"
+          <FormControl fullWidth required>
+            <InputLabel>Health Check Rating</InputLabel>
+
+            <Select
               value={healthCheckRating}
-              onChange={(event) =>
-                setHealthCheckRating(event.target.value)
-              }
-              required
-            />
-          </fieldset>
+              label="Health Check Rating"
+              onChange={(event) => setHealthCheckRating(event.target.value)}
+            >
+              <MenuItem value="0">0 - Healthy 💚</MenuItem>
+              <MenuItem value="1">1 - Low Risk 💛</MenuItem>
+              <MenuItem value="2">2 - High Risk 🧡</MenuItem>
+              <MenuItem value="3">3 - Critical Risk ❤️</MenuItem>
+            </Select>
+          </FormControl>
         )}
 
         {/* Hospital-specific fields */}
         {type === "Hospital" && (
           <>
-            <fieldset>
-              <legend>Discharge Date</legend>
-              <input
-                type="date"
-                value={dischargeDate}
-                onChange={(event) =>
-                  setDischargeDate(event.target.value)
-                }
-                required
-              />
-            </fieldset>
+            <TextField
+              label="Discharge Date"
+              type="date"
+              value={dischargeDate}
+              onChange={(event) => setDischargeDate(event.target.value)}
+              fullWidth
+              required
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
+            />
 
-            <fieldset>
-              <legend>Discharge Criteria</legend>
-              <input
-                value={dischargeCriteria}
-                onChange={(event) =>
-                  setDischargeCriteria(event.target.value)
-                }
-                required
-              />
-            </fieldset>
+            <TextField
+              label="Discharge Criteria"
+              value={dischargeCriteria}
+              onChange={(event) => setDischargeCriteria(event.target.value)}
+              fullWidth
+              required
+            />
           </>
         )}
 
@@ -303,30 +351,32 @@ const AddEntryForm = ({ onEntryAdded }: Props) => {
               <legend>Employer Name</legend>
               <input
                 value={employerName}
-                onChange={(event) =>
-                  setEmployerName(event.target.value)
-                }
+                onChange={(event) => setEmployerName(event.target.value)}
                 required
               />
             </fieldset>
 
-            <fieldset>
-              <legend>Sick Leave Start Date (Optional)</legend>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(event) => setStartDate(event.target.value)}
-              />
-            </fieldset>
+            <TextField
+              label="Sick Leave Start Date (Optional)"
+              type="date"
+              value={startDate}
+              onChange={(event) => setStartDate(event.target.value)}
+              fullWidth
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
+            />
 
-            <fieldset>
-              <legend>Sick Leave End Date (Optional)</legend>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(event) => setEndDate(event.target.value)}
-              />
-            </fieldset>
+            <TextField
+              label="Sick Leave End Date (Optional)"
+              type="date"
+              value={endDate}
+              onChange={(event) => setEndDate(event.target.value)}
+              fullWidth
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
+            />
           </>
         )}
 
