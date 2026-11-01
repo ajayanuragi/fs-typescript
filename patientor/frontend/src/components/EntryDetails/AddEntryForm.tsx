@@ -200,15 +200,16 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
     }
 
     try {
-      
       const addedEntry = await entryService.create({ id, object });
-
+      console.log("ENTRY CREATED:", addedEntry);
       onEntryAdded(addedEntry);
       resetForm();
     } catch (error: unknown) {
       console.error("Entry submission error:", error);
 
       if (axios.isAxiosError(error)) {
+        console.error("Status:", error.response?.status);
+        console.error("Response:", error.response?.data);
         setError(error.response?.data?.error ?? "Failed to add entry");
       } else {
         setError("Something went wrong");
