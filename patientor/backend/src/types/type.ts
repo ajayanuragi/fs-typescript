@@ -54,7 +54,7 @@ type UnionOmit<T, K extends string | number | symbol> = T extends unknown
   ? Omit<T, K>
   : never;
 
-export type EntryWithoutId = UnionOmit<Entry, "id">;
+export type NewEntryWithoutId = UnionOmit<Entry, "id">;
 
 export const Gender = {
   Male: "male",
