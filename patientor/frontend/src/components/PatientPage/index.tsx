@@ -13,6 +13,7 @@ import {
   Divider,
   Chip,
   Box,
+  Button,
 } from "@mui/material";
 import { EntryDetails } from "../EntryDetails";
 import AddEntryForm from "../EntryDetails/AddEntryForm";
@@ -23,6 +24,7 @@ interface Props {
 
 export const PatientPage = ({ diagnoses }: Props) => {
   const [patient, setPatient] = useState<Patient>();
+  const [showEntryForm, setShowEntryForm] = useState(false);
   const params = useParams<Record<string, string | undefined>>();
 
   const id = params.id;
@@ -43,16 +45,17 @@ export const PatientPage = ({ diagnoses }: Props) => {
 
   const onEntryAdded = (entry: Entry) => {
     console.log("New entry received:", entry);
+  
     setPatient((previousPatient) => {
       if (!previousPatient) return undefined;
-      const updatedPatient = {
+  
+      return {
         ...previousPatient,
         entries: [...(previousPatient.entries ?? []), entry],
       };
-      console.log("Updated patient:", updatedPatient);
-
-      return updatedPatient;
     });
+  
+    setShowEntryForm(false);
   };
 
   if (!patient) {
@@ -119,10 +122,17 @@ export const PatientPage = ({ diagnoses }: Props) => {
           </Box>
         </Stack>
         <div>
-          <Typography variant="h5" component="h2">
+          <Button
+            variant="contained"
+          
+            onClick={() => setShowEntryForm(true)}
+          >
             Add New Entry
-          </Typography>
-          <AddEntryForm onEntryAdded={onEntryAdded} diagnoses={diagnoses} />
+          </Button>
+
+          {showEntryForm && (
+            <AddEntryForm onEntryAdded={onEntryAdded} diagnoses={diagnoses} />
+          )}
         </div>
       </Paper>
     </div>

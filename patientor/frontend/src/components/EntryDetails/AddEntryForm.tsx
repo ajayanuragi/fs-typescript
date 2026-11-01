@@ -13,8 +13,8 @@ import {
   Checkbox,
   ListItemText,
   OutlinedInput,
+  Button,
 } from "@mui/material";
-
 
 interface Props {
   onEntryAdded: (entry: Entry) => void;
@@ -33,7 +33,7 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
   const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
 
   // HealthCheck fields
-  const [healthCheckRating, setHealthCheckRating] = useState("");
+  const [healthCheckRating, setHealthCheckRating] = useState("0");
 
   // Hospital fields
   const [dischargeDate, setDischargeDate] = useState("");
@@ -53,7 +53,7 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
     setDescription("");
     setSpecialist("");
     setDiagnosisCodes([]);
-    setHealthCheckRating("");
+    setHealthCheckRating("0");
     setDischargeDate("");
     setDischargeCriteria("");
     setEmployerName("");
@@ -214,22 +214,25 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
 
       <form onSubmit={addEntry}>
         {/* Entry type */}
-        <fieldset>
-          <legend>Entry Type</legend>
-          <select
+        <FormControl fullWidth required>
+          <InputLabel id="entry-type-label">Entry Type</InputLabel>
+
+          <Select
+            labelId="entry-type-label"
             value={type}
+            label="Entry Type"
             onChange={(event) => {
               setType(event.target.value as EntryType);
               setError("");
             }}
           >
-            <option value="HealthCheck">Health Check</option>
-            <option value="Hospital">Hospital</option>
-            <option value="OccupationalHealthcare">
+            <MenuItem value="HealthCheck">Health Check</MenuItem>
+            <MenuItem value="Hospital">Hospital</MenuItem>
+            <MenuItem value="OccupationalHealthcare">
               Occupational Healthcare
-            </option>
-          </select>
-        </fieldset>
+            </MenuItem>
+          </Select>
+        </FormControl>
 
         {/* Common fields */}
         <TextField
@@ -244,23 +247,21 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
           }}
         />
 
-        <fieldset>
-          <legend>Description</legend>
-          <input
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            required
-          />
-        </fieldset>
+        <TextField
+          label="Description"
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
+          required
+          fullWidth
+        />
 
-        <fieldset>
-          <legend>Specialist</legend>
-          <input
-            value={specialist}
-            onChange={(event) => setSpecialist(event.target.value)}
-            required
-          />
-        </fieldset>
+        <TextField
+          label="Specialist"
+          value={specialist}
+          onChange={(event) => setSpecialist(event.target.value)}
+          required
+          fullWidth
+        />
 
         <FormControl fullWidth>
           <InputLabel id="diagnosis-label">Diagnosis Codes</InputLabel>
@@ -347,14 +348,13 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
         {/* OccupationalHealthcare-specific fields */}
         {type === "OccupationalHealthcare" && (
           <>
-            <fieldset>
-              <legend>Employer Name</legend>
-              <input
-                value={employerName}
-                onChange={(event) => setEmployerName(event.target.value)}
-                required
-              />
-            </fieldset>
+            <TextField
+              label="Employer Name"
+              value={employerName}
+              onChange={(event) => setEmployerName(event.target.value)}
+              required
+              fullWidth
+            />
 
             <TextField
               label="Sick Leave Start Date (Optional)"
@@ -380,11 +380,18 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
           </>
         )}
 
-        <button type="submit">Add Entry</button>
+        <Button type="submit" variant="contained" aria-label="Submit entry">
+          Add
+        </Button>
 
-        <button type="button" onClick={resetForm}>
+        <Button
+          type="button"
+          variant="outlined"
+          color="secondary"
+          onClick={resetForm}
+        >
           Cancel
-        </button>
+        </Button>
       </form>
     </div>
   );
