@@ -55,11 +55,11 @@ export const EntryDetails = ({ entry, diagnoses }: Props) => {
   }
   return (
     <div>
-      <p>
+      <div>
         {entry.date} {entryContent}
         <br />
-        {entry.description}
-      </p>
+       <p> {entry.description}</p>
+      </div>
 
       <ul>
         {entry.diagnosisCodes?.map((code) => {
@@ -72,6 +72,7 @@ export const EntryDetails = ({ entry, diagnoses }: Props) => {
           );
         })}
       </ul>
+      
       {entry.type === "HealthCheck" && (
         <span>{ratingEmoji[entry.healthCheckRating]}</span>
       )}

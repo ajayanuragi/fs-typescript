@@ -27,12 +27,12 @@ export const HealthCheckRating = {
 export type HealthCheckRating =
   (typeof HealthCheckRating)[keyof typeof HealthCheckRating];
 
-interface HealthCheckEntry extends BaseEntry {
+export interface HealthCheckEntry extends BaseEntry {
   type: "HealthCheck";
   healthCheckRating: HealthCheckRating;
 }
 
-interface HospitalEntry extends BaseEntry {
+export interface HospitalEntry extends BaseEntry {
   type: "Hospital";
   discharge: {
     date: string;
@@ -40,7 +40,7 @@ interface HospitalEntry extends BaseEntry {
   };
 }
 
-interface OccupationalHealthcareEntry extends BaseEntry {
+export interface OccupationalHealthcareEntry extends BaseEntry {
   type: "OccupationalHealthcare";
   employerName: string;
   sickLeave?: {
@@ -61,10 +61,12 @@ export interface Patient {
   dateOfBirth?: string;
   entries?: Entry[];
 }
-
+export type HealthCheckEntryFormValues = Omit<HealthCheckEntry, "id">;
 export type PatientFormValues = Omit<Patient, "id" | "entries">;
 export type EntryWithoutId = Entry extends infer T
   ? T extends Entry
     ? Omit<T, "id">
     : never
   : never;
+
+export type EntryFormValues = EntryWithoutId;

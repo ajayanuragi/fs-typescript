@@ -7,8 +7,10 @@ interface AddEntry {
 
 const addEntry = ({ patient, entry }: AddEntry) => {
   const id = uuid();
-  patient.entries.push({ ...entry, id });
-  return patient;
+  const newEntry = { ...entry, id };
+
+  patient.entries.push(newEntry);
+  return newEntry;
 };
 
 export default {

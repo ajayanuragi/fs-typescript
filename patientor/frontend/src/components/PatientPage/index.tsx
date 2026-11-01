@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import type { Diagnosis, Patient } from "../../types";
+import type { Diagnosis, Patient, Entry } from "../../types";
 import patientService from "../../services/patients";
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
@@ -15,6 +15,7 @@ import {
   Box,
 } from "@mui/material";
 import { EntryDetails } from "../EntryDetails";
+import AddEntryForm from "../EntryDetails/AddEntryForm";
 
 interface Props {
   diagnoses: Diagnosis[];
@@ -23,18 +24,36 @@ interface Props {
 export const PatientPage = ({ diagnoses }: Props) => {
   const [patient, setPatient] = useState<Patient>();
   const params = useParams<Record<string, string | undefined>>();
+
   const id = params.id;
   useEffect(() => {
-    if (!id) {
-      return;
-    }
+    if (!id) return;
+
     const fetchPatient = async () => {
-      const patient = await patientService.getById(id);
-      setPatient(patient);
+      try {
+        const patient = await patientService.getById(id);
+        setPatient(patient);
+      } catch (error) {
+        console.error("Failed to fetch patient:", error);
+      }
     };
 
     fetchPatient();
   }, [id]);
+
+  const onEntryAdded = (entry: Entry) => {
+    console.log("New entry received:", entry);
+    setPatient((previousPatient) => {
+      if (!previousPatient) return undefined;
+      const updatedPatient = {
+        ...previousPatient,
+        entries: [...(previousPatient.entries ?? []), entry],
+      };
+      console.log("Updated patient:", updatedPatient);
+
+      return updatedPatient;
+    });
+  };
 
   if (!patient) {
     return (
@@ -99,6 +118,12 @@ export const PatientPage = ({ diagnoses }: Props) => {
             )}
           </Box>
         </Stack>
+        <div>
+          <Typography variant="h5" component="h2">
+            Add New Entry
+          </Typography>
+          <AddEntryForm onEntryAdded={onEntryAdded} />
+        </div>
       </Paper>
     </div>
   );
