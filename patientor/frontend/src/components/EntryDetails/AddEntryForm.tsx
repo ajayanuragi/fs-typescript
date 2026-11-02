@@ -25,25 +25,16 @@ type EntryType = "HealthCheck" | "Hospital" | "OccupationalHealthcare";
 
 const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
   const [type, setType] = useState<EntryType>("HealthCheck");
-
-  // Common fields
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
   const [specialist, setSpecialist] = useState("");
   const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
-
-  // HealthCheck fields
   const [healthCheckRating, setHealthCheckRating] = useState("0");
-
-  // Hospital fields
   const [dischargeDate, setDischargeDate] = useState("");
   const [dischargeCriteria, setDischargeCriteria] = useState("");
-
-  // OccupationalHealthcare fields
   const [employerName, setEmployerName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-
   const [error, setError] = useState("");
 
   const { id } = useParams();
@@ -73,7 +64,6 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
       return false;
     }
 
-    // Validate diagnosis codes for every entry type
     const invalidCodes = diagnosisCodes.filter(
       (code) => !diagnoses.some((diagnosis) => diagnosis.code === code),
     );
@@ -146,9 +136,8 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
     return true;
   };
 
-  const addEntry = async (event: React.FormEvent<HTMLFormElement>) => {
+  const addEntry = async (event: React.SyntheticEvent) => {
     event.preventDefault();
-
     setError("");
 
     if (!id) {
@@ -223,7 +212,6 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       <form onSubmit={addEntry}>
-        {/* Entry type */}
         <FormControl fullWidth required>
           <InputLabel id="entry-type-label">Entry Type</InputLabel>
 
@@ -244,7 +232,6 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
           </Select>
         </FormControl>
 
-        {/* Common fields */}
         <TextField
           label="Entry date"
           type="date"
@@ -312,7 +299,6 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
           </Select>
         </FormControl>
 
-        {/* HealthCheck-specific fields */}
         {type === "HealthCheck" && (
           <FormControl fullWidth required>
             <InputLabel>Health Check Rating</InputLabel>
@@ -330,7 +316,6 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
           </FormControl>
         )}
 
-        {/* Hospital-specific fields */}
         {type === "Hospital" && (
           <>
             <TextField
@@ -355,7 +340,6 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
           </>
         )}
 
-        {/* OccupationalHealthcare-specific fields */}
         {type === "OccupationalHealthcare" && (
           <>
             <TextField

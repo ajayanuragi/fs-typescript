@@ -31,7 +31,6 @@ export const EntryDetails = ({ entry, diagnoses }: Props) => {
       entryContent = (
         <>
           <HealthAndSafety />
-          {/*<p>Health check rating : {entry.healthCheckRating}</p>*/}
         </>
       );
       break;
