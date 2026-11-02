@@ -44,8 +44,6 @@ export const PatientPage = ({ diagnoses }: Props) => {
   }, [id]);
 
   const onEntryAdded = (entry: Entry) => {
-    console.log("New entry received:", entry);
-  
     setPatient((previousPatient) => {
       if (!previousPatient) return undefined;
   
@@ -54,7 +52,6 @@ export const PatientPage = ({ diagnoses }: Props) => {
         entries: [...(previousPatient.entries ?? []), entry],
       };
     });
-  
     setShowEntryForm(false);
   };
 
@@ -122,13 +119,11 @@ export const PatientPage = ({ diagnoses }: Props) => {
           </Box>
         </Stack>
         <div>
-          <Button
-            variant="contained"
-          
-            onClick={() => setShowEntryForm(true)}
-          >
-            Add New Entry
-          </Button>
+          {!showEntryForm && (
+            <Button variant="contained" onClick={() => setShowEntryForm(true)}>
+              Add New Entry
+            </Button>
+          )}
 
           {showEntryForm && (
             <AddEntryForm onEntryAdded={onEntryAdded} diagnoses={diagnoses} />

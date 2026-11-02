@@ -201,7 +201,6 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
 
     try {
       const addedEntry = await entryService.create({ id, object });
-      console.log("ENTRY CREATED:", addedEntry);
       onEntryAdded(addedEntry);
       resetForm();
     } catch (error: unknown) {
@@ -391,7 +390,7 @@ const AddEntryForm = ({ onEntryAdded, diagnoses }: Props) => {
           </>
         )}
 
-        <Button type="submit" variant="contained" aria-label="Submit entry">
+        <Button type="submit" variant="contained">
           Add
         </Button>
 
